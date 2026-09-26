@@ -7,7 +7,7 @@ for a normal topic edit.
 
 Each topic is a dict with:
   key         short internal id
-  label       shown as a "[Category]" prefix on each headline in the feed
+  label       section heading shown in the daily digest
   feeds       list of source RSS feed URLs to pull from
   keywords    (optional) only include an article if its title+summary
               contains at least one of these (case-insensitive).
@@ -15,32 +15,44 @@ Each topic is a dict with:
   min_items / max_items   how many fresh items to pull per run (a random
               number in this range is chosen each day, which is part of
               why the feed doesn't feel identical day to day)
+
+Ordering matters: CORE_TOPICS renders top-to-bottom in that order in the
+digest, so your top-priority hobbies are listed first, general/local
+sections last. (Rebalanced 2026-09-26 per feedback: hobbies — BJJ,
+surfing, etc. — were getting crowded out by high-volume tech and local
+feeds. Tech/local caps are now intentionally small.)
 """
 
 FEED_TITLE = "Ben's Daily Digest"
 FEED_LINK = "https://bbullock1984.github.io/personal-rss-feed/"
 FEED_DESCRIPTION = (
-    "A personalized daily headline digest across Ben's core interests, "
-    "local NYC-metro news, and a rotating set of adjacent topics."
+    "A personalized daily digest across Ben's core interests, a light touch "
+    "of local NYC-metro news, and a rotating set of adjacent topics."
 )
 
 # ---------------------------------------------------------------------------
-# CORE TOPICS — things you're "definitely interested" in, covered every day
+# CORE TOPICS — things you're "definitely interested" in, covered every day.
+# Hobby topics lead; broad/high-volume topics (tech) are deliberately capped
+# low so they don't crowd out everything else.
 # ---------------------------------------------------------------------------
 CORE_TOPICS = [
     {
         "key": "bjj",
         "label": "BJJ & Grappling",
         "feeds": [
-            "https://www.mmafighting.com/rss/current",
-            "https://mmajunkie.usatoday.com/feed",
-            "https://www.bloodyelbow.com/rss/current",
+            "https://www.bjjee.com/feed/",
         ],
-        "keywords": [
-            "jiu-jitsu", "jiu jitsu", "bjj", "grappling", "adcc",
-            "ibjjf", "submission grappling", "no-gi", "no gi",
+        "keywords": [],  # dedicated BJJ news site — take everything
+        "min_items": 2, "max_items": 5,
+    },
+    {
+        "key": "surfing",
+        "label": "Surfing",
+        "feeds": [
+            "https://www.theinertia.com/feed/",
         ],
-        "min_items": 1, "max_items": 4,
+        "keywords": [],  # dedicated surf/outdoor site — take everything
+        "min_items": 2, "max_items": 4,
     },
     {
         "key": "soccer",
@@ -55,7 +67,17 @@ CORE_TOPICS = [
             "champions league", "premier league", "new york red bulls",
             "griezmann",
         ],
-        "min_items": 2, "max_items": 5,
+        "min_items": 2, "max_items": 4,
+    },
+    {
+        "key": "tennis",
+        "label": "Tennis",
+        "feeds": [
+            "https://www.espn.com/espn/rss/tennis/news",
+            "https://www.tennis.com/feed/",
+        ],
+        "keywords": [],  # dedicated tennis feeds — take everything
+        "min_items": 1, "max_items": 3,
     },
     {
         "key": "jdm_cars",
@@ -69,16 +91,6 @@ CORE_TOPICS = [
             "gt-r", "skyline",
         ],
         "min_items": 1, "max_items": 3,
-    },
-    {
-        "key": "tennis",
-        "label": "Tennis",
-        "feeds": [
-            "https://www.espn.com/espn/rss/tennis/news",
-            "https://www.tennis.com/feed/",
-        ],
-        "keywords": [],  # dedicated tennis feeds — take everything
-        "min_items": 1, "max_items": 4,
     },
     {
         "key": "recipes",
@@ -117,18 +129,7 @@ CORE_TOPICS = [
             "spotify", "streaming", "subscri", "music industry",
             "apple music", "youtube music", "amazon music", "tidal",
         ],
-        "min_items": 2, "max_items": 5,
-    },
-    {
-        "key": "tech_ai",
-        "label": "Tech & AI",
-        "feeds": [
-            "https://techcrunch.com/feed/",
-            "https://www.theverge.com/rss/index.xml",
-            "https://feeds.arstechnica.com/arstechnica/index",
-        ],
-        "keywords": [],  # general tech/AI news — take everything, capped
-        "min_items": 2, "max_items": 5,
+        "min_items": 1, "max_items": 3,
     },
     {
         "key": "family_games",
@@ -155,7 +156,7 @@ CORE_TOPICS = [
             "streaming", "new series", "new season", "trailer",
             "all creatures great and small", "mobland",
         ],
-        "min_items": 1, "max_items": 4,
+        "min_items": 1, "max_items": 3,
     },
     {
         "key": "fatherhood",
@@ -180,13 +181,27 @@ CORE_TOPICS = [
             "things to do", "date night", "weekend", "event",
             "restaurant", "day trip", "festival", "opening",
         ],
-        "min_items": 1, "max_items": 4,
+        "min_items": 1, "max_items": 2,
+    },
+    {
+        # Intentionally small: this was crowding out hobby topics when it
+        # took every TechCrunch/Verge/Ars Technica headline unfiltered.
+        "key": "tech_ai",
+        "label": "Tech & AI",
+        "feeds": [
+            "https://techcrunch.com/feed/",
+            "https://www.theverge.com/rss/index.xml",
+            "https://feeds.arstechnica.com/arstechnica/index",
+        ],
+        "keywords": [],  # general tech/AI news — take everything, but capped small
+        "min_items": 1, "max_items": 2,
     },
 ]
 
 # ---------------------------------------------------------------------------
-# LOCAL TOPICS — heavy weighting per Ben's preference (Montclair NJ / 07042
-# and the greater NYC metro area)
+# LOCAL TOPICS — a light touch of Montclair/Essex County + NYC metro news.
+# Kept deliberately small (was previously the biggest single source of
+# volume in the feed).
 # ---------------------------------------------------------------------------
 LOCAL_TOPICS = [
     {
@@ -196,7 +211,7 @@ LOCAL_TOPICS = [
             "https://patch.com/new-jersey/montclair/rss",
         ],
         "keywords": [],
-        "min_items": 2, "max_items": 6,
+        "min_items": 1, "max_items": 2,
     },
     {
         "key": "local_nyc_metro",
@@ -207,7 +222,7 @@ LOCAL_TOPICS = [
             "https://www.nj.com/arc/outboundfeeds/rss/",
         ],
         "keywords": [],
-        "min_items": 2, "max_items": 6,
+        "min_items": 1, "max_items": 2,
     },
 ]
 
@@ -281,3 +296,6 @@ DISCOVERY_TOPICS = [
         "max_items": 2,
     },
 ]
+
+# How many discovery topics get pulled into any single day's digest.
+DISCOVERY_TOPICS_PER_RUN = (2, 3)
